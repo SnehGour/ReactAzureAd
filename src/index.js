@@ -4,10 +4,25 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import { PublicClientApplication, EventType } from '@azure/msal-browser'
+import { msConfig } from './config';
+
+
+const msalInstance = new PublicClientApplication(msConfig);
+if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
+  msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
+}
+
+msalInstance.addEventCallback((event) => {
+  if (event.eventType === Event.LOGIN_SUCCESS && event.payload.account) {
+    msalInstance.setActiveAccount(event.payload.account);
+  }
+})
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <App instance={msalInstance}/>
   </React.StrictMode>
 );
 
